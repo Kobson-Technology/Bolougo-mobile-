@@ -1,8 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import '../utils/formatters.dart';
-
 import '../models/membre.dart';
 
 class AddMembreScreen extends StatefulWidget {
@@ -33,6 +35,10 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
   List<dynamic> _groupes = [];
   bool _isLoadingGroupes = true;
 
+  File? _imageFile;
+  String? _photoBase64;
+  final ImagePicker _picker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +64,34 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
           _quartierCtrl.text = m.quartier!;
         }
       }
+      
+      if (m.photo != null && m.photo!.isNotEmpty) {
+        _photoBase64 = m.photo;
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 400,
+        imageQuality: 70,
+      );
+
+      if (pickedFile != null) {
+        final bytes = await File(pickedFile.path).readAsBytes();
+        final base64Image = base64Encode(bytes);
+        
+        setState(() {
+          _imageFile = File(pickedFile.path);
+          _photoBase64 = 'data:image/jpeg;base64,$base64Image';
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur sélection photo : $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -104,6 +138,7 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
             ? (_quartierCtrl.text.trim().isEmpty ? null : _quartierCtrl.text.trim())
             : _quartierSelectionne,
         'famille': _familleCtrl.text.trim().isEmpty ? null : _familleCtrl.text.trim(),
+        'photo': _photoBase64,
       };
 
       if (widget.membre != null) {
@@ -152,6 +187,46 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            // ─── Photo ────────────────────────────────────────
+            Center(
+              child: Stack(
+                children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.white,
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile!)
+                          : (_photoBase64 != null && _photoBase64!.startsWith('data:image'))
+                              ? MemoryImage(base64Decode(_photoBase64!.split(',').last))
+                              : (_photoBase64 != null && _photoBase64!.startsWith('http'))
+                                  ? NetworkImage(_photoBase64!) as ImageProvider
+                                  : null,
+                      child: (_imageFile == null && _photoBase64 == null)
+                          ? const Icon(Icons.person, size: 50, color: Colors.grey)
+                          : null,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFEF4444),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
             // ─── Identité ─────────────────────────────────────
             _sectionHeader('Identité', Icons.badge),
             _buildField(_nomCtrl, 'Nom *', Icons.person, required: true, capitalization: TextCapitalization.characters),
