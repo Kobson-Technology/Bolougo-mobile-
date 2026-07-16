@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/message.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({Key? key}) : super(key: key);
@@ -14,6 +14,7 @@ class MessagesScreen extends StatefulWidget {
 class _MessagesScreenState extends State<MessagesScreen> {
   List<Message> _messages = [];
   bool _isLoading = true;
+  final _storage = const FlutterSecureStorage();
 
   @override
   void initState() {
@@ -24,8 +25,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
   Future<void> _fetchMessages() async {
     setState(() => _isLoading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+      final token = await _storage.read(key: 'jwt_token');
 
       final response = await http.get(
         Uri.parse('https://bolougo-api.runasp.net/api/messages'),
@@ -52,8 +52,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Future<void> _markAsRead(int id) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+      final token = await _storage.read(key: 'jwt_token');
 
       final response = await http.put(
         Uri.parse('https://bolougo-api.runasp.net/api/messages/$id/read'),
@@ -86,8 +85,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   Future<void> _deleteMessage(int id) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('auth_token');
+      final token = await _storage.read(key: 'jwt_token');
 
       final response = await http.delete(
         Uri.parse('https://bolougo-api.runasp.net/api/messages/$id'),
