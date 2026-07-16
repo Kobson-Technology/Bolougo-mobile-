@@ -12,6 +12,7 @@ import 'manage_slides_screen.dart';
 import 'bureau_screen.dart';
 import 'groupes_screen.dart';
 import 'utilisateurs_screen.dart';
+import 'messages_screen.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -61,6 +62,10 @@ class MenuScreen extends StatelessWidget {
           if (Permissions.hasAccess(role, 'UTILISATEURS'))
             _buildMenuItem(context, 'Utilisateurs', Icons.people_outline_rounded, const Color(0xFFEF4444), () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const UtilisateursScreen()));
+            }),
+          if (Permissions.hasAccess(role, 'MESSAGES'))
+            _buildMenuItem(context, 'Messages', Icons.mail_rounded, const Color(0xFF0EA5E9), () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const MessagesScreen()));
             }),
           _buildMenuItem(context, 'Mon Profil', Icons.person_rounded, const Color(0xFF6B7280), () {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));

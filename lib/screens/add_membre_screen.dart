@@ -3,8 +3,11 @@ import 'package:provider/provider.dart';
 import '../services/api_service.dart';
 import '../utils/formatters.dart';
 
+import '../models/membre.dart';
+
 class AddMembreScreen extends StatefulWidget {
-  const AddMembreScreen({super.key});
+  final Membre? membre;
+  const AddMembreScreen({super.key, this.membre});
 
   @override
   State<AddMembreScreen> createState() => _AddMembreScreenState();
@@ -34,6 +37,28 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
   void initState() {
     super.initState();
     _fetchGroupes();
+    if (widget.membre != null) {
+      final m = widget.membre!;
+      _nomCtrl.text = m.nom;
+      _prenomsCtrl.text = m.prenoms;
+      _telCtrl.text = m.telephone ?? '';
+      _emailCtrl.text = m.email ?? '';
+      _villeCtrl.text = m.ville ?? '';
+      _paysCtrl.text = m.pays ?? '';
+      _profCtrl.text = m.profession ?? '';
+      _familleCtrl.text = m.famille ?? '';
+      _sexe = m.sexe;
+      _groupeSelectionne = m.groupeId;
+      
+      if (m.quartier != null && m.quartier!.isNotEmpty) {
+        if (_quartiers.contains(m.quartier)) {
+          _quartierSelectionne = m.quartier;
+        } else {
+          _quartierSelectionne = 'Autre';
+          _quartierCtrl.text = m.quartier!;
+        }
+      }
+    }
   }
 
   Future<void> _fetchGroupes() async {
@@ -65,7 +90,7 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
 
     final api = Provider.of<ApiService>(context, listen: false);
     try {
-      await api.client.post('/membres', data: {
+      final data = {
         'nom': _nomCtrl.text.trim().toUpperCase(),
         'prenoms': _prenomsCtrl.text.trim().toUpperCase(),
         'telephone': _telCtrl.text.trim().isEmpty ? null : _telCtrl.text.trim(),
@@ -79,11 +104,17 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
             ? (_quartierCtrl.text.trim().isEmpty ? null : _quartierCtrl.text.trim())
             : _quartierSelectionne,
         'famille': _familleCtrl.text.trim().isEmpty ? null : _familleCtrl.text.trim(),
-      });
+      };
+
+      if (widget.membre != null) {
+        await api.client.put('/membres/${widget.membre!.id}', data: data);
+      } else {
+        await api.client.post('/membres', data: data);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('✅ Membre ajouté avec succès !'), backgroundColor: Color(0xFF10B981)),
+          SnackBar(content: Text(widget.membre != null ? '✅ Membre modifié avec succès !' : '✅ Membre ajouté avec succès !'), backgroundColor: const Color(0xFF10B981)),
         );
         Navigator.of(context).pop(true); // retour avec refresh signal
       }
@@ -100,10 +131,11 @@ class _AddMembreScreenState extends State<AddMembreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.membre != null;
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        title: const Text('Nouveau Membre', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(isEditing ? 'Modifier le Membre' : 'Nouveau Membre', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: const Color(0xFFEF4444),
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [

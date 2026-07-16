@@ -329,52 +329,78 @@ class _CotisationDetailScreenState extends State<CotisationDetailScreen> {
   }
 
   Widget _buildActionButtons() {
-    final resteTotalNonPayes = _membresConsolides
-      .where((m) => m.totalPaye == 0 && m.montantAttendu > 0)
-      .fold<double>(0, (s, m) => s + m.resteAPayer);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 10,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (_detail!.statut != 'TERMINE' && _detail!.statut != 'CLOTURE')
+          if (_detail!.statut != 'TERMINE' && _detail!.statut != 'CLOTURE') ...[
             ElevatedButton.icon(
               onPressed: _cloturerCampagne,
-              icon: const Icon(Icons.lock, size: 16),
-              label: const Text('Clôturer la campagne'),
+              icon: const Icon(Icons.lock_outline, size: 17),
+              label: const Text('Cloturer la campagne', style: TextStyle(fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF92400e),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                minimumSize: const Size(double.infinity, 46),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 0,
               ),
             ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: _genererTexte()));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rapport copié !')));
-            },
-            icon: const Icon(Icons.copy, size: 16),
-            label: const Text('Rapport payés'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF334155),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(text: _genererRappelTexte()));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Rappel copié !')));
-            },
-            icon: const Icon(Icons.copy, size: 16),
-            label: const Text('Rapport Non payés'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFf59e0b),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
+            const SizedBox(height: 10),
+            const Divider(height: 1, color: Color(0xFFE5E7EB)),
+            const SizedBox(height: 10),
+          ],
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: _genererTexte()));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Rapport payes copie !'), backgroundColor: Color(0xFF334155)),
+                    );
+                  },
+                  icon: const Icon(Icons.content_copy_rounded, size: 16),
+                  label: const Text('Rapport\npayes', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF334155),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 52),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: _genererRappelTexte()));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Rapport non payes copie !'), backgroundColor: Color(0xFFf59e0b)),
+                    );
+                  },
+                  icon: const Icon(Icons.content_copy_rounded, size: 16),
+                  label: const Text('Rapport\nNon payes', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFf59e0b),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 52),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -4,6 +4,7 @@ import 'cotisations_screen.dart';
 import 'finances_screen.dart';
 import 'menu_screen.dart';
 import 'dashboard_screen.dart';
+import '../services/update_service.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -30,6 +31,14 @@ class _AppShellState extends State<AppShell> {
     BottomNavigationBarItem(icon: Icon(Icons.account_balance_rounded), label: 'Finances'),
     BottomNavigationBarItem(icon: Icon(Icons.menu_rounded), label: 'Menu'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      UpdateService.checkForUpdate(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

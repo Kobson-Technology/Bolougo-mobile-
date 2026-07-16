@@ -142,7 +142,24 @@ class _MembresScreenState extends State<MembresScreen> {
                                 if (m.ville != null) Row(children: [const Icon(Icons.location_on, size: 14, color: Colors.grey), const SizedBox(width: 4), Text(m.ville!, style: const TextStyle(fontSize: 13))]),
                               ],
                             ),
-                            trailing: const Icon(Icons.chevron_right, color: Color(0xFFEF4444)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Color(0xFFEF4444)),
+                                  onPressed: () async {
+                                    final result = await Navigator.of(context).push<bool>(
+                                      MaterialPageRoute(builder: (_) => AddMembreScreen(membre: m)),
+                                    );
+                                    if (result == true) {
+                                      setState(() { _isLoading = true; _membres = []; _filtered = []; });
+                                      await _fetchMembres();
+                                    }
+                                  },
+                                ),
+                                const Icon(Icons.chevron_right, color: Color(0xFFEF4444)),
+                              ],
+                            ),
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => MembreDetailScreen(membreId: m.id, nomComplet: m.nomComplet)),
                             ),

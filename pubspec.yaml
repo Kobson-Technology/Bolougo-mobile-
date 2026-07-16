@@ -39,6 +39,10 @@ dependencies:
   provider: ^6.1.5+1
   carousel_slider: ^5.1.2
   image_picker: ^1.2.3
+  package_info_plus: ^10.2.1
+  path_provider: ^2.1.6
+  open_filex: ^4.7.0
+  permission_handler: ^12.0.3
 
 dev_dependencies:
   flutter_test:
