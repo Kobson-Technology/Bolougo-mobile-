@@ -35,7 +35,7 @@ class _MediathequeScreenState extends State<MediathequeScreen> with SingleTicker
           tabs: const [
             Tab(icon: Icon(Icons.photo_library), text: 'Photos'),
             Tab(icon: Icon(Icons.video_library), text: 'Vidéos'),
-            Tab(icon: Icon(Icons.library_music), text: 'Musiques'),
+            Tab(icon: Icon(Icons.headphones), text: 'Audio'),
           ],
         ),
       ),
